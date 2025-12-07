@@ -69,3 +69,59 @@ document.querySelectorAll('.service-card, .about-text, .about-image, .hero-conte
   el.classList.add('fade-in-section');
   observer.observe(el);
 });
+
+// Form Submission Handler
+async function submitForm(url, data, formElement) {
+  const button = formElement.querySelector('button[type="submit خوب');
+  const originalText = button.innerText;
+
+  try {
+    button.innerText = 'Sending...';
+    button.disabled = true;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message);
+      formElement.reset();
+    } else {
+      throw new Error(result.error || 'Something went wrong');
+    }
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('Failed to send message: ' + error.message);
+  } finally {
+    button.innerText = originalText;
+    button.disabled = false;
+  }
+}
+
+// Contact Form Listener
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(contactForm);
+    const data = Object.fromEntries(formData.entries());
+    submitForm('http://localhost:5000/api/contact', data, contactForm);
+  });
+}
+
+// Proposal Form Listener
+const proposalForm = document.getElementById('proposalForm');
+if (proposalForm) {
+  proposalForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(proposalForm);
+    const data = Object.fromEntries(formData.entries());
+    submitForm('http://localhost:5000/api/proposal', data, proposalForm);
+  });
+}
